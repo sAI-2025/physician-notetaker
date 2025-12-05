@@ -1,4 +1,4 @@
-```markdown
+
 # 🩺 Physician Notetaker – AI Medical Conversation Analyzer
 
 Live Demo: **[https://saik2026-demo.hf.space/physician-notetaker/](https://saik2026-demo.hf.space/physician-notetaker/)**
