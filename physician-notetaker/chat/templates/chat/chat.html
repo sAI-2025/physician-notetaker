@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>🩺 Medical Physician Notetaker | AI Analysis</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Anime.js for animations -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          'medical-blue': '#0052CC',
+          'medical-light': '#2684FF',
+          'medical-cyan': '#00B8D9',
+          'medical-gray': '#F4F5F7',
+          'medical-dark': '#172B4D',
+          'medical-green': '#36B37E',
+          'medical-red': '#FF5630',
+        },
+        animation: {
+          'fade-in': 'fadeIn 0.6s ease-out',
+          'slide-up': 'slideUp 0.5s ease-out',
+          'slide-down': 'slideDown 0.5s ease-out',
+          'pulse-glow': 'pulseGlow 2s ease-in-out infinite',
+          'bounce-gentle': 'bounceGentle 1s ease-in-out infinite',
+        },
+        keyframes: {
+          fadeIn: {
+            '0%': { opacity: '0', transform: 'translateY(10px)' },
+            '100%': { opacity: '1', transform: 'translateY(0)' }
+          },
+          slideUp: {
+            '0%': { opacity: '0', transform: 'translateY(20px)' },
+            '100%': { opacity: '1', transform: 'translateY(0)' }
+          },
+          slideDown: {
+            '0%': { opacity: '0', transform: 'translateY(-20px)' },
+            '100%': { opacity: '1', transform: 'translateY(0)' }
+          },
+          pulseGlow: {
+            '0%, 100%': { boxShadow: '0 0 20px rgba(0, 82, 204, 0.3)' },
+            '50%': { boxShadow: '0 0 40px rgba(0, 82, 204, 0.6)' }
+          },
+          bounceGentle: {
+            '0%, 100%': { transform: 'translateY(0)' },
+            '50%': { transform: 'translateY(-5px)' }
+          }
+        }
+      }
+    }
+  }
+</script>
+<style>
+  @keyframes typing {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+  .typing-dot {
+    animation: typing 1.4s infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+  }
+  .shimmer-loading {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  /* Scrollbar styling */
+  #chat-box::-webkit-scrollbar {
+    width: 8px;
+  }
+  #chat-box::-webkit-scrollbar-track {
+    background: rgba(0, 82, 204, 0.05);
+    border-radius: 10px;
+  }
+  #chat-box::-webkit-scrollbar-thumb {
+    background: linear-gradient(to bottom, #0052CC, #2684FF);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+  }
+  #chat-box::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to bottom, #003d99, #1a5ccc);
+  }
+
+  /* Glass morphism effect */
+  .glass-effect {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    background: linear-gradient(135deg, #0052CC, #00B8D9);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Message animations */
+  .message-enter {
+    animation: slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .message-exit {
+    animation: slideDown 0.3s ease-in;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 640px) {
+    #chat-box {
+      height: 350px !important;
+    }
+    textarea {
+      font-size: 16px !important;
+    }
+  }
+
+  /* Card hover effects */
+  .card-hover {
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 82, 204, 0.15);
+  }
+
+  /* Button ripple effect */
+  .ripple {
+    position: relative;
+    overflow: hidden;
+  }
+  .ripple::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  /* Smooth transitions */
+  * {
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Badge animation */
+  .badge-pulse {
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+</style>
+</head>
+<body class="bg-gradient-to-br from-medical-gray via-white to-blue-50 min-h-screen flex items-center justify-center p-3 sm:p-4 md:p-6">
+
+<!-- Main Container -->
+<div class="w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[95vh] md:h-screen">
+
+  <!-- Header -->
+  <div class="bg-gradient-to-r from-medical-blue via-medical-light to-medical-cyan p-4 sm:p-6 text-white shadow-lg">
+    <div class="flex items-center justify-between gap-4">
+      <div class="flex items-center space-x-3 min-w-0">
+        <div class="w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
+          <i class="fas fa-stethoscope text-medical-blue text-xl sm:text-2xl"></i>
+        </div>
+        <div class="min-w-0">
+          <h1 class="text-lg sm:text-2xl font-bold leading-tight">🩺 Physician Notetaker</h1>
+          <p class="text-xs sm:text-sm opacity-90 truncate">AI-Powered Medical Analysis</p>
+        </div>
+      </div>
+      <button class="hover:bg-white/20 p-2 sm:p-3 rounded-xl transition duration-300 transform hover:scale-110 active:scale-95" onclick="clearChat()" title="Clear Chat" aria-label="Clear chat history">
+        <i class="fas fa-trash-alt text-lg"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Chat Box -->
+  <div id="chat-box" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-gradient-to-b from-white to-medical-gray/20 message-container">
+    <!-- Welcome Message -->
+    <div class="flex items-start space-x-3 animate-slide-up">
+      <div class="w-10 h-10 bg-medical-green rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
+        <i class="fas fa-user-md text-white text-lg"></i>
+      </div>
+      <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-3xl rounded-tl-none p-4 sm:p-5 shadow-md max-w-2xl border-l-4 border-medical-green card-hover">
+        <p class="text-medical-dark text-sm sm:text-base leading-relaxed">
+          👋 <strong class="text-medical-green">Welcome to Medical Physician Notetaker!</strong><br><br>
+          I can analyze physician-patient conversations and provide:
+          <br>
+          <ul class="mt-3 ml-4 space-y-2">
+            <li class="flex items-start space-x-2"><i class="fas fa-check text-medical-green mt-1 text-xs"></i><span><strong>NER Extraction:</strong> Symptoms, Treatment, Diagnosis, Prognosis</span></li>
+            <li class="flex items-start space-x-2"><i class="fas fa-check text-medical-green mt-1 text-xs"></i><span><strong>Sentiment Analysis:</strong> Patient emotional state and intent</span></li>
+            <li class="flex items-start space-x-2"><i class="fas fa-check text-medical-green mt-1 text-xs"></i><span><strong>SOAP Notes:</strong> Structured clinical documentation</span></li>
+          </ul>
+          <br>
+          <span class="text-xs opacity-75">💡 Paste a medical conversation below to get started!</span>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Typing Indicator -->
+  <div id="typing-indicator" class="px-4 sm:px-6 pb-3 hidden animate-fade-in">
+    <div class="flex items-center space-x-2">
+      <div class="w-10 h-10 bg-gradient-to-r from-medical-light to-medical-cyan rounded-full flex items-center justify-center shadow-lg">
+        <i class="fas fa-brain text-white animate-bounce"></i>
+      </div>
+      <div class="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl px-5 py-3 shadow-md flex space-x-2 border border-medical-light/20 card-hover">
+        <span class="text-sm text-medical-dark font-medium">Analyzing</span>
+        <div class="w-2 h-2 bg-medical-blue rounded-full typing-dot"></div>
+        <div class="w-2 h-2 bg-medical-blue rounded-full typing-dot"></div>
+        <div class="w-2 h-2 bg-medical-blue rounded-full typing-dot"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Replies Section -->
+  <div id="quick-replies" class="px-4 sm:px-6 pb-3 flex gap-2 overflow-x-auto hide-scrollbar">
+    <button class="quick-reply-btn bg-medical-cyan/10 text-medical-cyan px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap border border-medical-cyan/30 hover:bg-medical-cyan/20 hover:border-medical-cyan/50 ripple transition-all duration-300" onclick="insertSample()">
+      <i class="fas fa-wand-magic-sparkles mr-1"></i> Sample
+    </button>
+    <button class="quick-reply-btn bg-medical-green/10 text-medical-green px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap border border-medical-green/30 hover:bg-medical-green/20 hover:border-medical-green/50 ripple transition-all duration-300" onclick="showHelp()">
+      <i class="fas fa-question-circle mr-1"></i> Help
+    </button>
+    <button class="quick-reply-btn bg-medical-light/10 text-medical-light px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap border border-medical-light/30 hover:bg-medical-light/20 hover:border-medical-light/50 ripple transition-all duration-300" onclick="showFeatures()">
+      <i class="fas fa-star mr-1"></i> Features
+    </button>
+  </div>
+
+  <!-- Input Area -->
+  <div class="p-4 sm:p-6 bg-white border-t border-gray-200">
+    <div class="flex flex-col sm:flex-row items-end gap-3">
+      <div class="flex-1 w-full">
+        <label for="user-input" class="text-xs font-semibold text-medical-dark mb-2 block">Medical Conversation</label>
+        <textarea
+          id="user-input"
+          rows="3"
+          class="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:border-medical-blue focus:outline-none focus:ring-2 focus:ring-medical-blue/10 resize-none transition-all duration-300 text-sm sm:text-base placeholder-gray-400"
+          placeholder="Paste physician-patient conversation here..."
+          aria-label="Medical conversation input"
+        ></textarea>
+      </div>
+      <button
+        id="send-btn"
+        class="bg-gradient-to-r from-medical-blue to-medical-light text-white px-6 sm:px-8 py-3 rounded-2xl font-bold hover:shadow-xl transform hover:scale-105 transition-all duration-300 active:scale-95 flex items-center justify-center w-full sm:w-auto gap-2 ripple"
+        onclick="sendMessage()"
+        aria-label="Analyze conversation"
+      >
+        <i class="fas fa-paper-plane text-lg"></i>
+        <span class="hidden sm:inline">Analyze</span>
+      </button>
+    </div>
+    <p class="text-xs text-gray-500 mt-3 text-center flex items-center justify-center gap-2">
+      <i class="fas fa-shield-alt text-medical-green"></i> HIPAA-compliant • Secure AI analysis
+    </p>
+  </div>
+
+</div>
+
+<style>
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+</style>
+
+<script>
+const chatBox = document.getElementById('chat-box');
+const userInput = document.getElementById('user-input');
+const sendBtn = document.getElementById('send-btn');
+const typingIndicator = document.getElementById('typing-indicator');
+
+// Append user message
+function appendUserMessage(text) {
+  const msgContainer = document.createElement('div');
+  msgContainer.className = 'flex items-start space-x-3 justify-end message-enter';
+  const preview = text.length > 200 ? text.substring(0, 200) + '...' : text;
+  msgContainer.innerHTML = `
+    <div class="bg-gradient-to-r from-medical-blue to-medical-light text-white rounded-3xl rounded-tr-none p-4 sm:p-5 shadow-lg max-w-2xl card-hover">
+      <div class="flex items-center space-x-2 mb-3 pb-3 border-b border-white/20">
+        <i class="fas fa-file-medical-alt text-lg"></i>
+        <span class="font-semibold text-sm sm:text-base">Medical Conversation</span>
+        <span class="text-xs opacity-80">(${text.split(' ').length} words)</span>
+      </div>
+      <p class="text-sm break-words opacity-95">${escapeHtml(preview)}</p>
+    </div>
+    <div class="w-10 h-10 bg-gradient-to-r from-medical-dark to-blue-900 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
+      <i class="fas fa-user text-white text-sm"></i>
+    </div>
+  `;
+  chatBox.appendChild(msgContainer);
+  scrollToBottom();
+  animateMessage(msgContainer);
+}
+
+// Append comprehensive bot analysis
+function appendBotAnalysis(data) {
+  const msgContainer = document.createElement('div');
+  msgContainer.className = 'flex items-start space-x-3 message-enter';
+
+  const nerData = data.ner_extraction.data || {};
+  const sentimentData = data.sentiment_analysis.data || {};
+  const soapData = data.soap_note.data || {};
+
+  const nerHtml = `
+    <div class="card-hover bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-200/50 rounded-2xl p-4 sm:p-5 mb-3 shadow-md">
+      <div class="flex items-center space-x-2 text-medical-blue font-bold mb-4 pb-3 border-b border-blue-200/50">
+        <div class="w-8 h-8 bg-blue-200/30 rounded-lg flex items-center justify-center">
+          <i class="fas fa-tags text-lg"></i>
+        </div>
+        <span class="text-sm sm:text-base">Named Entity Recognition</span>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+        <div class="card-hover bg-white p-3 rounded-xl shadow-sm border border-red-100/50">
+          <div class="flex items-center space-x-2 text-red-600 font-semibold mb-2">
+            <i class="fas fa-heartbeat text-lg"></i>
+            <span>Symptoms</span>
+          </div>
+          <ul class="list-disc list-inside text-xs text-gray-700 space-y-1">
+            ${(nerData.Symptoms || []).map(s => `<li class="truncate">${s}</li>`).join('') || '<li class="text-gray-400">None detected</li>'}
+          </ul>
+        </div>
+        <div class="card-hover bg-white p-3 rounded-xl shadow-sm border border-green-100/50">
+          <div class="flex items-center space-x-2 text-green-600 font-semibold mb-2">
+            <i class="fas fa-pills text-lg"></i>
+            <span>Treatment</span>
+          </div>
+          <ul class="list-disc list-inside text-xs text-gray-700 space-y-1">
+            ${(nerData.Treatment || []).map(t => `<li class="truncate">${t}</li>`).join('') || '<li class="text-gray-400">None detected</li>'}
+          </ul>
+        </div>
+        <div class="card-hover bg-white p-3 rounded-xl shadow-sm border border-purple-100/50">
+          <div class="flex items-center space-x-2 text-purple-600 font-semibold mb-2">
+            <i class="fas fa-diagnoses text-lg"></i>
+            <span>Diagnosis</span>
+          </div>
+          <ul class="list-disc list-inside text-xs text-gray-700 space-y-1">
+            ${(nerData.Diagnosis || []).map(d => `<li class="truncate">${d}</li>`).join('') || '<li class="text-gray-400">None detected</li>'}
+          </ul>
+        </div>
+        <div class="card-hover bg-white p-3 rounded-xl shadow-sm border border-blue-100/50">
+          <div class="flex items-center space-x-2 text-blue-600 font-semibold mb-2">
+            <i class="fas fa-chart-line text-lg"></i>
+            <span>Prognosis</span>
+          </div>
+          <ul class="list-disc list-inside text-xs text-gray-700 space-y-1">
+            ${(nerData.Prognosis || []).map(p => `<li class="truncate">${p}</li>`).join('') || '<li class="text-gray-400">None detected</li>'}
+          </ul>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const sentimentHtml = `
+    <div class="card-hover bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200/50 rounded-2xl p-4 sm:p-5 mb-3 shadow-md">
+      <div class="flex items-center space-x-2 text-medical-green font-bold mb-4 pb-3 border-b border-green-200/50">
+        <div class="w-8 h-8 bg-green-200/30 rounded-lg flex items-center justify-center">
+          <i class="fas fa-face-smile text-lg"></i>
+        </div>
+        <span class="text-sm sm:text-base">Sentiment & Intent Analysis</span>
+      </div>
+      <div class="space-y-3 text-sm">
+        <div class="flex items-center justify-between bg-white p-3 rounded-xl shadow-sm border border-green-100/50">
+          <span class="font-semibold text-gray-700">Patient Sentiment:</span>
+          <span class="px-3 py-1 rounded-full text-xs font-bold ${getSentimentColor(sentimentData.Sentiment)}">
+            ${sentimentData.Sentiment || 'N/A'}
+          </span>
+        </div>
+        <div class="bg-white p-3 rounded-xl shadow-sm border border-green-100/50">
+          <span class="font-semibold text-gray-700 block mb-2 text-xs">Detected Intents:</span>
+          <div class="flex flex-wrap gap-2">
+            ${(sentimentData.Intent || []).map(intent =>
+              `<span class="px-3 py-1 bg-medical-light/10 text-medical-light rounded-full text-xs border border-medical-light/30 font-medium">${intent}</span>`
+            ).join('') || '<span class="text-gray-400 text-xs">None detected</span>'}
+          </div>
+        </div>
+        ${sentimentData.Confidence ? `
+          <div class="flex items-center justify-between bg-white p-3 rounded-xl shadow-sm border border-green-100/50">
+            <span class="font-semibold text-gray-700">Confidence:</span>
+            <span class="text-medical-blue font-bold">${sentimentData.Confidence}</span>
+          </div>
+        ` : ''}
+      </div>
+    </div>
+  `;
+
+  const soapHtml = `
+    <div class="card-hover bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200/50 rounded-2xl p-4 sm:p-5 shadow-md">
+      <div class="flex items-center space-x-2 text-purple-600 font-bold mb-4 pb-3 border-b border-purple-200/50">
+        <div class="w-8 h-8 bg-purple-200/30 rounded-lg flex items-center justify-center">
+          <i class="fas fa-file-medical text-lg"></i>
+        </div>
+        <span class="text-sm sm:text-base">SOAP Note</span>
+      </div>
+      <div class="space-y-3 text-sm">
+        ${soapData.Subjective ? `
+          <div class="card-hover bg-white p-3 rounded-xl shadow-sm border border-blue-100/50">
+            <div class="font-semibold text-blue-600 mb-2 flex items-center gap-2"><i class="fas fa-pencil text-xs"></i>Subjective</div>
+            <div class="text-xs text-gray-700 space-y-2">
+              ${soapData.Subjective.Chief_Complaint ? `<p><strong>Chief Complaint:</strong> <span class="opacity-80">${soapData.Subjective.Chief_Complaint}</span></p>` : ''}
+              ${soapData.Subjective.History_of_Present_Illness ? `<p><strong>HPI:</strong> <span class="opacity-80">${typeof soapData.Subjective.History_of_Present_Illness === 'object' ? JSON.stringify(soapData.Subjective.History_of_Present_Illness) : soapData.Subjective.History_of_Present_Illness}</span></p>` : ''}
+            </div>
+          </div>
+        ` : ''}
+        ${soapData.Objective ? `
+          <div class="card-hover bg-white p-3 rounded-xl shadow-sm border border-green-100/50">
+            <div class="font-semibold text-green-600 mb-2 flex items-center gap-2"><i class="fas fa-microscope text-xs"></i>Objective</div>
+            <div class="text-xs text-gray-700 space-y-2">
+              ${soapData.Objective.Physical_Exam ? `<p><strong>Physical Exam:</strong> <span class="opacity-80">${typeof soapData.Objective.Physical_Exam === 'object' ? JSON.stringify(soapData.Objective.Physical_Exam) : soapData.Objective.Physical_Exam}</span></p>` : ''}
+            </div>
+          </div>
+        ` : ''}
+        ${soapData.Assessment ? `
+          <div class="card-hover bg-white p-3 rounded-xl shadow-sm border border-orange-100/50">
+            <div class="font-semibold text-orange-600 mb-2 flex items-center gap-2"><i class="fas fa-stethoscope text-xs"></i>Assessment</div>
+            <div class="text-xs text-gray-700 space-y-2">
+              ${soapData.Assessment.Diagnosis ? `<p><strong>Diagnosis:</strong> <span class="opacity-80">${soapData.Assessment.Diagnosis}</span></p>` : ''}
+              ${soapData.Assessment.Severity ? `<p><strong>Severity:</strong> <span class="opacity-80">${soapData.Assessment.Severity}</span></p>` : ''}
+            </div>
+          </div>
+        ` : ''}
+        ${soapData.Plan ? `
+          <div class="card-hover bg-white p-3 rounded-xl shadow-sm border border-purple-100/50">
+            <div class="font-semibold text-purple-600 mb-2 flex items-center gap-2"><i class="fas fa-list-check text-xs"></i>Plan</div>
+            <div class="text-xs text-gray-700 space-y-2">
+              ${soapData.Plan.Treatment ? `<p><strong>Treatment:</strong> <span class="opacity-80">${soapData.Plan.Treatment}</span></p>` : ''}
+              ${soapData.Plan.Follow_Up ? `<p><strong>Follow-up:</strong> <span class="opacity-80">${soapData.Plan.Follow_Up}</span></p>` : ''}
+            </div>
+          </div>
+        ` : ''}
+      </div>
+    </div>
+  `;
+
+  msgContainer.innerHTML = `
+    <div class="w-10 h-10 bg-gradient-to-r from-medical-green to-emerald-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
+      <i class="fas fa-robot text-white text-sm"></i>
+    </div>
+    <div class="bg-white rounded-3xl rounded-tl-none p-4 sm:p-5 shadow-xl max-w-full border border-gray-100 card-hover">
+      <div class="flex items-center space-x-2 text-medical-blue font-bold text-base sm:text-lg mb-4 pb-4 border-b border-gray-200">
+        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+          <i class="fas fa-chart-bar"></i>
+        </div>
+        <span>Complete Medical Analysis</span>
+      </div>
+      ${nerHtml}
+      ${sentimentHtml}
+      ${soapHtml}
+    </div>
+  `;
+
+  chatBox.appendChild(msgContainer);
+  scrollToBottom();
+  animateMessage(msgContainer);
+}
+
+// Helper function for sentiment colors
+function getSentimentColor(sentiment) {
+  switch(sentiment) {
+    case 'Anxious':
+      return 'bg-red-100 text-red-700 border border-red-200';
+    case 'Reassured':
+      return 'bg-green-100 text-green-700 border border-green-200';
+    case 'Neutral':
+    default:
+      return 'bg-gray-100 text-gray-700 border border-gray-200';
+  }
+}
+
+// Show typing indicator
+function showTyping() {
+  typingIndicator.classList.remove('hidden');
+  scrollToBottom();
+}
+
+// Hide typing indicator
+function hideTyping() {
+  typingIndicator.classList.add('hidden');
+}
+
+// Send message
+async function sendMessage() {
+  const conversation = userInput.value.trim();
+  if (conversation.length === 0) {
+    alert('Please enter a medical conversation');
+    return;
+  }
+
+  appendUserMessage(conversation);
+  userInput.value = '';
+  sendBtn.disabled = true;
+  showTyping();
+
+  try {
+    const response = await fetch('/physician-notetaker/api/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ conversation })
+    });
+    const result = await response.json();
+
+    setTimeout(() => {
+      hideTyping();
+      sendBtn.disabled = false;
+      if (result.success) {
+        appendBotAnalysis(result.data);
+      } else {
+        appendErrorMessage(result.error);
+      }
+    }, 1500);
+  } catch (err) {
+    hideTyping();
+    sendBtn.disabled = false;
+    appendErrorMessage('Connection error. Please check your network and try again.');
+    console.error('Error:', err);
+  }
+}
+
+// Error message
+function appendErrorMessage(error) {
+  const msgContainer = document.createElement('div');
+  msgContainer.className = 'flex items-start space-x-3 message-enter';
+  msgContainer.innerHTML = `
+    <div class="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
+      <i class="fas fa-exclamation-triangle text-white"></i>
+    </div>
+    <div class="bg-red-50 border-2 border-red-200 text-red-700 rounded-3xl rounded-tl-none p-4 sm:p-5 shadow-md max-w-md card-hover">
+      <p class="text-sm font-semibold flex items-center gap-2 mb-2"><i class="fas fa-exclamation-circle"></i> Error</p>
+      <p class="text-xs opacity-90">${escapeHtml(error)}</p>
+    </div>
+  `;
+  chatBox.appendChild(msgContainer);
+  scrollToBottom();
+  animateMessage(msgContainer);
+}
+
+// Utility functions
+function scrollToBottom() {
+  setTimeout(() => {
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }, 100);
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function animateMessage(element) {
+  anime({
+    targets: element,
+    opacity: [0, 1],
+    translateY: [20, 0],
+    duration: 600,
+    easing: 'easeOutExpo'
+  });
+}
+
+function clearChat() {
+  if (confirm('Clear all messages? This action cannot be undone.')) {
+    chatBox.innerHTML = '';
+    setTimeout(() => location.reload(), 300);
+  }
+}
+
+function insertSample() {
+  userInput.value = `Physician: Good morning, Ms. Jones. How are you feeling today?
+
+Patient: Good morning, doctor. I'm doing better, but I still have some discomfort now and then.
+
+Physician: I understand you were in a car accident last September. Can you walk me through what happened?
+
+Patient: Yes, it was on September 1st, around 12:30 in the afternoon. I was driving from Cheadle Hulme to Manchester when I had to stop in traffic. Out of nowhere, another car hit me from behind, which pushed my car into the one in front.
+
+Physician: That sounds like a strong impact. Were you wearing your seatbelt?
+
+Patient: Yes, I always do.
+
+Physician: What did you feel immediately after the accident?
+
+Patient: At first, I was just shocked. But then I realized I had hit my head on the steering wheel, and I could feel pain in my neck and back almost right away.
+
+Physician: Did you seek medical attention at that time?
+
+Patient: Yes, I went to Moss Bank Accident and Emergency. They checked me over and said it was a whiplash injury, but they didn't do any X-rays. They just gave me some advice and sent me home.
+
+Physician: How did things progress after that?
+
+Patient: The first four weeks were rough. My neck and back pain were really bad—I had trouble sleeping and had to take painkillers regularly. It started improving after that, but I had to go through ten sessions of physiotherapy to help with the stiffness and discomfort.
+
+Physician: That makes sense. Are you still experiencing pain now?
+
+Patient: It's not constant, but I do get occasional backaches. It's nothing like before, though.
+
+Physician: That's good to hear. Have you noticed any other effects, like anxiety while driving or difficulty concentrating?
+
+Patient: No, nothing like that. I don't feel nervous driving, and I haven't had any emotional issues from the accident.
+
+Physician: And how has this impacted your daily life? Work, hobbies, anything like that?
+
+Patient: I had to take a week off work, but after that, I was back to my usual routine. It hasn't really stopped me from doing anything.
+
+Physician: That's encouraging. Let's go ahead and do a physical examination to check your mobility and any lingering pain.
+
+[Physical Examination Conducted]
+
+Physician: Everything looks good. Your neck and back have a full range of movement, and there's no tenderness or signs of lasting damage. Your muscles and spine seem to be in good condition.
+
+Patient: That's a relief!
+
+Physician: Yes, your recovery so far has been quite positive. Given your progress, I'd expect you to make a full recovery within six months of the accident. There are no signs of long-term damage or degeneration.
+
+Patient: That's great to hear. So, I don't need to worry about this affecting me in the future?
+
+Physician: That's right. I don't foresee any long-term impact on your work or daily life. If anything changes or you experience worsening symptoms, you can always come back for a follow-up. But at this point, you're on track for a full recovery.
+
+Patient: Thank you, doctor. I appreciate it.
+
+Physician: You're very welcome, Ms. Jones. Take care, and don't hesitate to reach out if you need anything.`;
+  userInput.focus();
+  anime({ targets: userInput, scrollTop: userInput.scrollHeight, duration: 800 });
+}
+
+function showHelp() {
+  const helpMsg = document.createElement('div');
+  helpMsg.className = 'flex items-start space-x-3 message-enter';
+  helpMsg.innerHTML = `
+    <div class="w-10 h-10 bg-medical-cyan rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
+      <i class="fas fa-circle-info text-white"></i>
+    </div>
+    <div class="bg-gradient-to-br from-cyan-50 to-blue-50 border border-medical-cyan/30 rounded-3xl rounded-tl-none p-4 sm:p-5 shadow-md max-w-md card-hover">
+      <p class="text-sm text-medical-dark font-semibold mb-3 flex items-center gap-2"><i class="fas fa-book"></i>How to Use:</p>
+      <ol class="text-xs text-medical-dark space-y-2 list-decimal list-inside">
+        <li class="flex gap-2"><span class="flex-shrink-0">1.</span><span>Paste a physician-patient conversation</span></li>
+        <li class="flex gap-2"><span class="flex-shrink-0">2.</span><span>Click "Analyze" button</span></li>
+        <li class="flex gap-2"><span class="flex-shrink-0">3.</span><span>Get NER, Sentiment, and SOAP analysis</span></li>
+        <li class="flex gap-2"><span class="flex-shrink-0">4.</span><span>Review comprehensive medical insights</span></li>
+      </ol>
+    </div>
+  `;
+  chatBox.appendChild(helpMsg);
+  scrollToBottom();
+  animateMessage(helpMsg);
+}
+
+function showFeatures() {
+  const featuresMsg = document.createElement('div');
+  featuresMsg.className = 'flex items-start space-x-3 message-enter';
+  featuresMsg.innerHTML = `
+    <div class="w-10 h-10 bg-medical-light rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
+      <i class="fas fa-sparkles text-white"></i>
+    </div>
+    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 border border-medical-light/30 rounded-3xl rounded-tl-none p-4 sm:p-5 shadow-md max-w-md card-hover">
+      <p class="text-sm text-medical-dark font-semibold mb-3 flex items-center gap-2"><i class="fas fa-star"></i>Key Features:</p>
+      <ul class="text-xs text-medical-dark space-y-2">
+        <li class="flex items-center gap-2"><i class="fas fa-check-circle text-green-500"></i><span><strong>NER Extraction:</strong> Smart entity recognition</span></li>
+        <li class="flex items-center gap-2"><i class="fas fa-check-circle text-green-500"></i><span><strong>Sentiment Analysis:</strong> Emotional intelligence</span></li>
+        <li class="flex items-center gap-2"><i class="fas fa-check-circle text-green-500"></i><span><strong>Intent Detection:</strong> Patient understanding</span></li>
+        <li class="flex items-center gap-2"><i class="fas fa-check-circle text-green-500"></i><span><strong>SOAP Notes:</strong> Clinical documentation</span></li>
+        <li class="flex items-center gap-2"><i class="fas fa-check-circle text-green-500"></i><span><strong>AI-Powered:</strong> Advanced LLM integration</span></li>
+      </ul>
+    </div>
+  `;
+  chatBox.appendChild(featuresMsg);
+  scrollToBottom();
+  animateMessage(featuresMsg);
+}
+
+// Enter key support
+userInput.addEventListener('keypress', function(e) {
+  if (e.key === 'Enter' && e.ctrlKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+// Auto-resize textarea
+userInput.addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+});
+</script>
+
+</body>
+</html>

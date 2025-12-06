@@ -1,0 +1,83 @@
+{
+  "ner_extraction": {
+    "error": false,
+    "data": {
+      "Symptoms": [
+        "neck pain",
+        "back pain",
+        "discomfort",
+        "backaches",
+        "whiplash injury"
+      ],
+      "Treatment": [
+        "painkillers",
+        "physiotherapy"
+      ],
+      "Diagnosis": [
+        "whiplash injury"
+      ],
+      "Prognosis": [
+        "full recovery expected within six months"
+      ]
+    },
+    "raw_extraction": "{\n  \"Symptoms\": [\"neck pain\", \"back pain\", \"discomfort\", \"backaches\"],\n  \"Treatment\": [\"painkillers\", \"physiotherapy\"],\n  \"Diagnosis\": [\"whiplash injury\"],\n  \"Prognosis\": [\"full recovery expected within six months\"]\n}",
+    "validation_status": "MEDICAL"
+  },
+  "sentiment_analysis": {
+    "error": false,
+    "data": {
+      "Sentiment": "Neutral",
+      "Intent": [
+        "Reporting symptoms",
+        "Asking questions",
+        "Acknowledging improvement",
+        "Seeking reassurance"
+      ],
+      "Confidence": "High",
+      "Patient_Quotes": [
+        "I'm doing better, but I still have some discomfort now and then.",
+        "At first, I was just shocked. But then I realized I had hit my head on the steering wheel, and I could feel pain in my neck and back almost right away.",
+        "The first four weeks were rough. My neck and back pain were really bad\u2014I had trouble sleeping and had to take painkillers regularly.",
+        "It's not constant, but I do get occasional backaches.",
+        "That's a relief!",
+        "That's great to hear. So, I don't need to worry about this affecting me in the future?"
+      ]
+    }
+  },
+  "soap_note": {
+    "error": false,
+    "data": {
+      "Subjective": {
+        "Chief_Complaint": "persistent discomfort and occasional backaches",
+        "History_of_Present_Illness": {
+          "Accident_Description": "car accident on September 1st, 2022, at 12:30 PM, involving a rear-end collision while driving from Cheadle Hulme to Manchester",
+          "Injury_Description": "whiplash injury, with pain in the neck and back, and a head injury from hitting the steering wheel",
+          "Initial_Treatment": "attended Moss Bank Accident and Emergency, where a whiplash injury was diagnosed, but no X-rays were taken, and painkillers were prescribed",
+          "Rehabilitation": "10 sessions of physiotherapy to address stiffness and discomfort",
+          "Symptom_Progression": "initially severe pain for 4 weeks, followed by gradual improvement"
+        },
+        "Review_of_Systems": "no anxiety while driving, difficulty concentrating, or emotional issues reported"
+      },
+      "Objective": {
+        "Physical_Exam": {
+          "Range_of_Motion": "full range of movement in the neck and back",
+          "Tenderness": "no tenderness or signs of lasting damage",
+          "Muscle_Spindle": "muscles and spine in good condition"
+        },
+        "Observations": "physician observed a positive recovery so far",
+        "Vitals": "not mentioned"
+      },
+      "Assessment": {
+        "Diagnosis": "whiplash injury",
+        "Severity": "mild to moderate",
+        "Clinical_Impression": "full recovery expected within 6 months of the accident, with no signs of long-term damage or degeneration"
+      },
+      "Plan": {
+        "Treatment": "continued monitoring and follow-up",
+        "Medications": "none mentioned",
+        "Follow_Up": "return for a follow-up if symptoms worsen or change",
+        "Prognosis": "full recovery expected within 6 months"
+      }
+    }
+  }
+}
